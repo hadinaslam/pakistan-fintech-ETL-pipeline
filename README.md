@@ -1,45 +1,120 @@
-Overview
-========
+Pakistan Fintech & Currency Market Analytics Pipeline
 
-Welcome to Astronomer! This project was generated after you ran 'astro dev init' using the Astronomer CLI. This readme describes the contents of the project, as well as how to run Apache Airflow on your local machine.
+An automated data engineering pipeline that collects live financial market data every 5 minutes using Apache Airflow 3.0, PostgreSQL, and Docker — all orchestrated via Astro CLI.
 
-Project Contents
-================
 
-Your Astro project contains the following files and folders:
+📊 What It Tracks
 
-- dags: This folder contains the Python files for your Airflow DAGs. By default, this directory includes one example DAG:
-    - `example_astronauts`: This DAG shows a simple ETL pipeline example that queries the list of astronauts currently in space from the Open Notify API and prints a statement for each astronaut. The DAG uses the TaskFlow API to define tasks in Python, and dynamic task mapping to dynamically print a statement for each astronaut. For more on how this DAG works, see our [Getting started tutorial](https://www.astronomer.io/docs/learn/get-started-with-airflow).
-- Dockerfile: This file contains a versioned Astro Runtime Docker image that provides a differentiated Airflow experience. If you want to execute other commands or overrides at runtime, specify them here.
-- include: This folder contains any additional files that you want to include as part of your project. It is empty by default.
-- packages.txt: Install OS-level packages needed for your project by adding them to this file. It is empty by default.
-- requirements.txt: Install Python packages needed for your project by adding them to this file. It is empty by default.
-- plugins: Add custom or community plugins for your project to this file. It is empty by default.
-- airflow_settings.yaml: Use this local-only file to specify Airflow Connections, Variables, and Pools instead of entering them in the Airflow UI as you develop DAGs in this project.
+PipelineData SourceWhat It Collects🪙 CryptoCoinGecko APIBTC, ETH, USDT prices in USD & PKR💵 ForexExchangeRate APIUSD → PKR, GBP, EUR, AED🥇 GoldGoldAPI.io24k, 22k, 18k prices in PKR📈 PSX StocksYahoo Finance (yfinance)EFERT, FFC, LUCK, MCB, MARI
 
-Deploy Your Project Locally
-===========================
 
-Start Airflow on your local machine by running 'astro dev start'.
+⚙️ Tech Stack
 
-This command will spin up five Docker containers on your machine, each for a different Airflow component:
 
-- Postgres: Airflow's Metadata Database
-- Scheduler: The Airflow component responsible for monitoring and triggering tasks
-- DAG Processor: The Airflow component responsible for parsing DAGs
-- API Server: The Airflow component responsible for serving the Airflow UI and API
-- Triggerer: The Airflow component responsible for triggering deferred tasks
+Apache Airflow 3.0 — DAG orchestration & scheduling
+Astro CLI — local Airflow development environment
+PostgreSQL — data storage
+Docker — containerized infrastructure
+Python — ETL logic
+DBeaver — database management & querying
 
-When all five containers are ready the command will open the browser to the Airflow UI at http://localhost:8080/. You should also be able to access your Postgres Database at 'localhost:5432/postgres' with username 'postgres' and password 'postgres'.
 
-Note: If you already have either of the above ports allocated, you can either [stop your existing Docker containers or change the port](https://www.astronomer.io/docs/astro/cli/troubleshoot-locally#ports-are-not-available-for-my-local-airflow-webserver).
 
-Deploy Your Project to Astronomer
-=================================
+🏗️ Architecture
 
-If you have an Astronomer account, pushing code to a Deployment on Astronomer is simple. For deploying instructions, refer to Astronomer documentation: https://www.astronomer.io/docs/astro/deploy-code/
+APIs (CoinGecko, ExchangeRate, GoldAPI, Yahoo Finance)
+        ↓
+   Extract Task (Python)
+        ↓
+   Transform Task (Python)
+        ↓
+   Load Task (PostgresHook)
+        ↓
+   PostgreSQL Database
 
-Contact
-=======
+Each pipeline follows the ETL pattern with 3 Airflow tasks:
 
-The Astronomer CLI is maintained with love by the Astronomer team. To report a bug or suggest a change, reach out to our support.
+
+extract_*_data() — fetches raw data from API
+transform_*_data() — cleans and structures data
+load_*_data() — inserts into PostgreSQL via PostgresHook
+
+
+
+📁 Project Structure
+
+pakistan-fintech-pipeline/
+├── dags/
+│   ├── crypto_pipeline.py    # BTC, ETH, USDT prices
+│   ├── forex_pipeline.py     # USD exchange rates
+│   ├── gold_pipeline.py      # Gold prices in PKR
+│   └── psx_pipeline.py       # Pakistan Stock Exchange
+├── Dockerfile
+├── requirements.txt
+├── packages.txt
+└── README.md
+
+
+🚀 Getting Started
+
+Prerequisites
+
+
+Docker Desktop
+Astro CLI
+
+
+Run Locally
+
+bash# Clone the repo
+git clone https://github.com/your-username/pakistan-fintech-pipeline.git
+cd pakistan-fintech-pipeline
+
+# Start Airflow
+astro dev start
+
+# Open Airflow UI
+# Go to: localhost:8080
+# Login: admin / admin
+
+Setup Connections in Airflow UI
+
+Go to Admin → Connections and add:
+
+Postgres:
+
+FieldValueConnection Idpostgres_defaultTypePostgresHostpostgresSchemapostgresLoginpostgresPasswordpostgresPort5432
+
+
+📦 Dependencies
+
+apache-airflow-providers-postgres
+apache-airflow-providers-http
+yfinance
+requests
+beautifulsoup4
+
+
+🗄️ Database Tables
+
+sql-- Crypto prices
+SELECT * FROM crypto_prices LIMIT 10;
+
+-- Forex rates
+SELECT * FROM forex_rates LIMIT 10;
+
+-- Gold prices
+SELECT * FROM commodity_prices LIMIT 10;
+
+-- PSX stocks
+SELECT * FROM psx_stocks LIMIT 10;
+
+👨‍💻 Author
+
+Hadin Aslam Sonaly
+BS Data Science — Dawood University of Engineering & Technology (DUET), Karachi
+
+
+📌 Note
+
+This project was built for portfolio purposes to demonstrate real-world data engineering skills including pipeline orchestration, API integration, and database management.
